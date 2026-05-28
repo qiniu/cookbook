@@ -80,6 +80,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("创建沙箱失败: %v", err)
 	}
+	if sb == nil {
+		log.Fatal("创建沙箱失败: 返回的沙箱实例为 nil")
+	}
 	fmt.Printf("沙箱已创建: %s\n", sb.ID())
 
 	defer func() {
