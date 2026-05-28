@@ -438,7 +438,8 @@ func printAssistantMessage(msg map[string]any) {
 		if !ok {
 			continue
 		}
-		switch item["type"] {
+		t, _ := item["type"].(string)
+		switch t {
 		case "text":
 			if s, ok := item["text"].(string); ok {
 				text.WriteString(s)
@@ -461,7 +462,8 @@ func printUserMessage(msg map[string]any) {
 		if !ok {
 			continue
 		}
-		if item["type"] != "tool_result" {
+		t, _ := item["type"].(string)
+		if t != "tool_result" {
 			continue
 		}
 		id, _ := item["tool_use_id"].(string)
