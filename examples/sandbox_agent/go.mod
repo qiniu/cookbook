@@ -1,4 +1,4 @@
-module github.com/miclle/qiniu-cookbook/examples/sandbox_agent
+module github.com/qiniu/cookbook/examples/sandbox_agent
 
 go 1.22
 

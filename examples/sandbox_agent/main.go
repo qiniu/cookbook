@@ -358,8 +358,20 @@ func printEvent(evt map[string]any) {
 
 // printAssistantMessage 打印助手消息，区分纯文本与工具调用。
 func printAssistantMessage(msg map[string]any) {
+	if s, ok := msg["content"].(string); ok {
+		fmt.Printf("[assistant] %s\n", s)
+		return
+	}
+
 	contents, _ := msg["content"].([]any)
 	var text strings.Builder
+	flushText := func() {
+		if text.Len() > 0 {
+			fmt.Printf("[assistant] %s\n", text.String())
+			text.Reset()
+		}
+	}
+
 	for _, c := range contents {
 		item, ok := c.(map[string]any)
 		if !ok {
@@ -371,14 +383,13 @@ func printAssistantMessage(msg map[string]any) {
 				text.WriteString(s)
 			}
 		case "tool_use":
+			flushText()
 			name, _ := item["name"].(string)
 			input, _ := json.Marshal(item["input"])
 			fmt.Printf("[assistant/tool_use] %s input=%s\n", name, input)
 		}
 	}
-	if text.Len() > 0 {
-		fmt.Printf("[assistant] %s\n", text.String())
-	}
+	flushText()
 }
 
 // printUserMessage 打印用户消息，主要是工具结果回灌。

@@ -10,6 +10,8 @@
 
 ## 准备环境
 
+> 注意：示例为了完整演示 Claude Code Agent 的工具调用能力，会在沙箱内使用 `--dangerously-skip-permissions` 运行 `claude`，并通过环境变量向沙箱注入 `ANTHROPIC_API_KEY`。请只在可信示例数据和 prompt 下运行，不要把生产密钥或敏感数据用于该示例。生产场景建议使用七牛沙箱的密钥注入规则（injection-rule）等更安全的密钥管理方式。
+
 复制环境变量模板并填写实际值：
 
 ```bash
