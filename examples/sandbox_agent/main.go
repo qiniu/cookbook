@@ -205,7 +205,10 @@ func computeTopN(data []byte, n int) []userCount {
 // verifyTopN 在沙箱里独立运行 Agent 写的 main.py，并与期望 top 10 做机器比对。
 func verifyTopN(ctx context.Context, sb *sandbox.Sandbox, scriptPath string, expected []userCount) error {
 	fmt.Printf("\n--- 独立运行 %s ---\n", scriptPath)
-	res, err := sb.Commands().Run(ctx, "python3 "+shellQuote(scriptPath), sandbox.WithCwd("/tmp/topn"))
+	runCtx, runCancel := context.WithTimeout(ctx, 30*time.Second)
+	defer runCancel()
+
+	res, err := sb.Commands().Run(runCtx, "python3 "+shellQuote(scriptPath), sandbox.WithCwd("/tmp/topn"))
 	if err != nil {
 		return fmt.Errorf("运行脚本: %w", err)
 	}
@@ -307,7 +310,10 @@ func runTurn(ctx context.Context, sb *sandbox.Sandbox, prompt, resumeID string) 
 	cmd := "claude " + strings.Join(args, " ")
 
 	p := &streamProcessor{}
-	handle, err := sb.Commands().Start(ctx, cmd,
+	turnCtx, turnCancel := context.WithTimeout(ctx, 5*time.Minute)
+	defer turnCancel()
+
+	handle, err := sb.Commands().Start(turnCtx, cmd,
 		sandbox.WithOnStdout(p.onStdout),
 		// stderr 数据按 chunk 透传，避免对未完成的行加前缀产生 [stderr] part1[stderr] part2 这类碎片。
 		sandbox.WithOnStderr(func(data []byte) {
