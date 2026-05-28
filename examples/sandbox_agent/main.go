@@ -173,12 +173,12 @@ func computeTopN(data []byte, n int) []userCount {
 			continue
 		}
 		var rec struct {
-			UserID int `json:"user_id"`
+			UserID *int `json:"user_id"`
 		}
-		if err := json.Unmarshal(line, &rec); err != nil {
+		if err := json.Unmarshal(line, &rec); err != nil || rec.UserID == nil {
 			continue
 		}
-		counts[rec.UserID]++
+		counts[*rec.UserID]++
 	}
 	if err := scanner.Err(); err != nil {
 		log.Printf("computeTopN: scanner 提前终止: %v", err)
@@ -202,7 +202,7 @@ func computeTopN(data []byte, n int) []userCount {
 // verifyTopN 在沙箱里独立运行 Agent 写的 main.py，并与期望 top 10 做机器比对。
 func verifyTopN(ctx context.Context, sb *sandbox.Sandbox, scriptPath string, expected []userCount) error {
 	fmt.Printf("\n--- 独立运行 %s ---\n", scriptPath)
-	res, err := sb.Commands().Run(ctx, "python3 "+shellQuote(scriptPath))
+	res, err := sb.Commands().Run(ctx, "python3 "+shellQuote(scriptPath), sandbox.WithCwd("/tmp/topn"))
 	if err != nil {
 		return fmt.Errorf("运行脚本: %w", err)
 	}
