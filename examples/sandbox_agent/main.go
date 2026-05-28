@@ -117,6 +117,7 @@ func main() {
 		// Turn 2: 动手实现一个直观版本（工具调用：写文件 + 跑代码）
 		"按你刚才的思路，请在 /tmp/topn 下写一个 main.py，读取同目录下的 data.jsonl，" +
 			"按 user_id 统计 action 总数并输出 top 10（count 降序，相同时 user_id 升序）。" +
+			"输出格式固定为每行两个字段：user_id<TAB>count，不要输出表头。" +
 			"这一轮先写成直观版本：可以使用 readlines() 一次读入所有行，后面我们再优化。" +
 			"完成后运行 main.py 贴出结果。",
 
@@ -145,7 +146,7 @@ func main() {
 		// Turn 2/3 结束后列出工作目录并独立运行 main.py，与期望 top 10 对照。
 		if i >= 1 {
 			listWorkdir(ctx, sb, "/tmp/topn")
-			verifyTopN(ctx, sb, "/tmp/topn/main.py")
+			verifyTopN(ctx, sb, "/tmp/topn/main.py", expected)
 		}
 	}
 }
@@ -193,8 +194,8 @@ func computeTopN(data []byte, n int) []userCount {
 	return out
 }
 
-// verifyTopN 在沙箱里独立运行 Agent 写的 main.py，便于与期望 top 10 对照。
-func verifyTopN(ctx context.Context, sb *sandbox.Sandbox, scriptPath string) {
+// verifyTopN 在沙箱里独立运行 Agent 写的 main.py，并与期望 top 10 做机器比对。
+func verifyTopN(ctx context.Context, sb *sandbox.Sandbox, scriptPath string, expected []userCount) {
 	fmt.Printf("\n--- 独立运行 %s ---\n", scriptPath)
 	res, err := sb.Commands().Run(ctx, "python3 "+shellQuote(scriptPath))
 	if err != nil {
@@ -207,6 +208,62 @@ func verifyTopN(ctx context.Context, sb *sandbox.Sandbox, scriptPath string) {
 	}
 	if res.Stdout != "" {
 		fmt.Print(res.Stdout)
+	}
+	actual, err := parseTopNOutput(res.Stdout)
+	if err != nil {
+		fmt.Printf("结果解析失败: %v\n", err)
+		return
+	}
+	if equalTopN(actual, expected) {
+		fmt.Println("验证通过：输出与期望 top 10 一致")
+		return
+	}
+	fmt.Println("验证失败：输出与期望 top 10 不一致")
+	fmt.Println("期望:")
+	printTopN(expected)
+	fmt.Println("实际:")
+	printTopN(actual)
+}
+
+func parseTopNOutput(output string) ([]userCount, error) {
+	lines := strings.Split(strings.TrimSpace(output), "\n")
+	out := make([]userCount, 0, len(lines))
+	for i, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		fields := strings.Fields(line)
+		if len(fields) != 2 {
+			return nil, fmt.Errorf("第 %d 行格式不正确: %q", i+1, line)
+		}
+		var uc userCount
+		if _, err := fmt.Sscanf(fields[0], "%d", &uc.userID); err != nil {
+			return nil, fmt.Errorf("第 %d 行 user_id 无效: %w", i+1, err)
+		}
+		if _, err := fmt.Sscanf(fields[1], "%d", &uc.count); err != nil {
+			return nil, fmt.Errorf("第 %d 行 count 无效: %w", i+1, err)
+		}
+		out = append(out, uc)
+	}
+	return out, nil
+}
+
+func equalTopN(a, b []userCount) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func printTopN(items []userCount) {
+	for _, uc := range items {
+		fmt.Printf("  user_id=%d  count=%d\n", uc.userID, uc.count)
 	}
 }
 

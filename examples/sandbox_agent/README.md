@@ -31,7 +31,7 @@ source .env
 
 ## 运行
 
-进入当前示例目录后执行：
+在仓库根目录执行：
 
 ```bash
 cd examples/sandbox_agent
