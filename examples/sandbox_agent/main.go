@@ -17,13 +17,15 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"cmp"
 	"context"
 	_ "embed"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
-	"sort"
+	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -146,7 +148,10 @@ func main() {
 		// Turn 2/3 结束后列出工作目录并独立运行 main.py，与期望 top 10 对照。
 		if i >= 1 {
 			listWorkdir(ctx, sb, "/tmp/topn")
-			verifyTopN(ctx, sb, "/tmp/topn/main.py", expected)
+			if err := verifyTopN(ctx, sb, "/tmp/topn/main.py", expected); err != nil {
+				log.Printf("Turn %d 验证失败: %v", i+1, err)
+				return
+			}
 		}
 	}
 }
@@ -182,11 +187,11 @@ func computeTopN(data []byte, n int) []userCount {
 	for uid, c := range counts {
 		out = append(out, userCount{uid, c})
 	}
-	sort.Slice(out, func(i, j int) bool {
-		if out[i].count != out[j].count {
-			return out[i].count > out[j].count
+	slices.SortFunc(out, func(a, b userCount) int {
+		if a.count != b.count {
+			return cmp.Compare(b.count, a.count)
 		}
-		return out[i].userID < out[j].userID
+		return cmp.Compare(a.userID, b.userID)
 	})
 	if len(out) > n {
 		out = out[:n]
@@ -195,34 +200,32 @@ func computeTopN(data []byte, n int) []userCount {
 }
 
 // verifyTopN 在沙箱里独立运行 Agent 写的 main.py，并与期望 top 10 做机器比对。
-func verifyTopN(ctx context.Context, sb *sandbox.Sandbox, scriptPath string, expected []userCount) {
+func verifyTopN(ctx context.Context, sb *sandbox.Sandbox, scriptPath string, expected []userCount) error {
 	fmt.Printf("\n--- 独立运行 %s ---\n", scriptPath)
 	res, err := sb.Commands().Run(ctx, "python3 "+shellQuote(scriptPath))
 	if err != nil {
-		fmt.Printf("运行脚本失败: %v\n", err)
-		return
+		return fmt.Errorf("运行脚本: %w", err)
 	}
 	if res.ExitCode != 0 {
-		fmt.Printf("脚本退出码 %d, stderr:\n%s\n", res.ExitCode, res.Stderr)
-		return
+		return fmt.Errorf("脚本退出码 %d, stderr: %s", res.ExitCode, res.Stderr)
 	}
 	if res.Stdout != "" {
 		fmt.Print(res.Stdout)
 	}
 	actual, err := parseTopNOutput(res.Stdout)
 	if err != nil {
-		fmt.Printf("结果解析失败: %v\n", err)
-		return
+		return fmt.Errorf("结果解析: %w", err)
 	}
 	if equalTopN(actual, expected) {
 		fmt.Println("验证通过：输出与期望 top 10 一致")
-		return
+		return nil
 	}
 	fmt.Println("验证失败：输出与期望 top 10 不一致")
 	fmt.Println("期望:")
 	printTopN(expected)
 	fmt.Println("实际:")
 	printTopN(actual)
+	return fmt.Errorf("输出与期望 top 10 不一致")
 }
 
 func parseTopNOutput(output string) ([]userCount, error) {
@@ -237,14 +240,15 @@ func parseTopNOutput(output string) ([]userCount, error) {
 		if len(fields) != 2 {
 			return nil, fmt.Errorf("第 %d 行格式不正确: %q", i+1, line)
 		}
-		var uc userCount
-		if _, err := fmt.Sscanf(fields[0], "%d", &uc.userID); err != nil {
+		userID, err := strconv.Atoi(fields[0])
+		if err != nil {
 			return nil, fmt.Errorf("第 %d 行 user_id 无效: %w", i+1, err)
 		}
-		if _, err := fmt.Sscanf(fields[1], "%d", &uc.count); err != nil {
+		count, err := strconv.Atoi(fields[1])
+		if err != nil {
 			return nil, fmt.Errorf("第 %d 行 count 无效: %w", i+1, err)
 		}
-		out = append(out, uc)
+		out = append(out, userCount{userID: userID, count: count})
 	}
 	return out, nil
 }
