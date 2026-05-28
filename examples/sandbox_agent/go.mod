@@ -1,0 +1,14 @@
+module github.com/miclle/qiniu-cookbook/examples/sandbox_agent
+
+go 1.22
+
+require github.com/qiniu/go-sdk/v7 v7.26.12
+
+require (
+	connectrpc.com/connect v1.18.1 // indirect
+	github.com/BurntSushi/toml v1.3.2 // indirect
+	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
+	github.com/google/uuid v1.5.0 // indirect
+	github.com/oapi-codegen/runtime v1.1.2 // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
+)
