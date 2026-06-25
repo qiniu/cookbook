@@ -2,7 +2,7 @@
 
 对齐 e2b 官方 [`claude`](https://e2b.dev/docs/agents/claude-code) 模板，基于
 本仓库的 `agents-base` 模板叠加 [Claude Code CLI](https://docs.claude.com/claude-code)、
-Claude 本地状态和官方 MCP servers。
+Claude 本地状态和常用 MCP servers。
 
 ## 镜像内容
 
@@ -10,7 +10,7 @@ Claude 本地状态和官方 MCP servers。
 | --- | --- | --- |
 | 基础模板 | `agents-base` | 继承 e2bdev/base、Node.js、基础开发/排障工具、GitHub CLI 和前端脚手架 |
 | `@anthropic-ai/claude-code` | `latest` | Claude Code CLI |
-| `@modelcontextprotocol/server-*` | `latest` | 预装 filesystem / github / memory / sequential-thinking MCP server |
+| `@modelcontextprotocol/server-*` | `latest` | 预装 filesystem / memory / sequential-thinking MCP server |
 | `/home/user/.claude.json` | 预置 | 跳过 Claude Code 首次交互 onboarding |
 
 > 镜像内不内置任何 API key，认证信息通过沙箱创建时的 `envs` 注入。
@@ -134,8 +134,8 @@ qshell sbx cr claude \
 | vim | ❌ | ✅ |
 | 常用排障工具 | ❌ | ✅（jq / less / tree / zip / unzip / procps / lsof / nc / dig / ping） |
 | GitHub CLI | ❌ | ✅ |
-| 前端脚手架 | ❌ | ✅（pnpm / tsx / vite） |
-| MCP servers | ❌ | ✅（filesystem / github / memory / sequential-thinking） |
+| 前端脚手架 | ❌ | ✅（pnpm / yarn / tsx / vite） |
+| MCP servers | ❌ | ✅（filesystem / memory / sequential-thinking） |
 
 公共工具由 `agents-base` 统一维护，本模板 Dockerfile 只包含 Claude Code、
 Claude 本地状态和 MCP servers 的增量安装。

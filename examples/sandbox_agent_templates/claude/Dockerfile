@@ -25,10 +25,9 @@ RUN mkdir -p /home/user \
         > /home/user/.claude.json \
     && chown user:user /home/user/.claude.json
 
-# 预装常用 MCP servers（官方维护），Claude 可直接通过 `claude mcp` 启用
+# 预装常用 MCP servers，Claude 可直接通过 `claude mcp` 启用
 RUN npm install -g \
         @modelcontextprotocol/server-filesystem@latest \
-        @modelcontextprotocol/server-github@latest \
         @modelcontextprotocol/server-memory@latest \
         @modelcontextprotocol/server-sequential-thinking@latest \
     && npm cache clean --force
@@ -36,8 +35,8 @@ RUN npm install -g \
 # 默认工作目录：继承 agents-base / e2bdev/base 约定
 WORKDIR /home/user
 
-# 构建期简单验证（失败不阻断构建，仅做冒烟检查）
-RUN claude --version || true \
-    && gh --version || true \
+# 构建期验证：核心工具缺失时直接失败，避免发布不可用模板。
+RUN claude --version \
+    && gh --version \
     && node --version \
     && python3 --version

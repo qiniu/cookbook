@@ -11,16 +11,18 @@ TEMPLATES := $(BASE_TEMPLATE) $(AGENT_TEMPLATES)
 
 all: build
 
-# 按依赖顺序构建全部模板。这里刻意串行执行，确保子模板解析 base 时
-# agents-base 已经构建完成。
+# 按依赖顺序构建全部模板。显式依赖保证 make -j 时也会先构建 agents-base。
 build: _check-qshell $(addprefix build-,$(TEMPLATES))
 
-# 按相同顺序发布全部模板。先发布 agents-base，再发布依赖它的子模板。
+# 按相同顺序发布全部模板。显式依赖保证 make -j 时也会先发布 agents-base。
 publish: _check-qshell $(addprefix publish-,$(TEMPLATES))
 
 # 单模板辅助目标，例如：
 #   make build-claude
 #   make publish-agents-base
+$(addprefix build-,$(AGENT_TEMPLATES)): build-$(BASE_TEMPLATE)
+$(addprefix publish-,$(AGENT_TEMPLATES)): publish-$(BASE_TEMPLATE)
+
 $(addprefix build-,$(TEMPLATES)): _check-qshell
 	$(MAKE) _build TEMPLATE=$(@:build-%=%)
 

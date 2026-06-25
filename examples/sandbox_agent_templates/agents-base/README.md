@@ -23,7 +23,7 @@
 | `zip` / `unzip` | apt | 归档文件处理 |
 | `procps` / `lsof` / `netcat-openbsd` / `dnsutils` / `iputils-ping` | apt | 进程、端口和网络排障工具 |
 | `gh` | apt | GitHub CLI |
-| `pnpm` / `tsx` / `vite` | `latest` | 常用前端脚手架 |
+| `pnpm` / `yarn` / `tsx` / `vite` | `latest` | 常用前端脚手架 |
 
 ## 构建顺序
 

@@ -103,6 +103,6 @@ console.log(res.stdout)
 | git / ripgrep / vim | ✅ / ⚠️ 未确认 / ❌ | ✅ / ✅ / ✅ |
 | 常用排障工具 | ❌ | ✅（jq / less / tree / zip / unzip / procps / lsof / nc / dig / ping） |
 | GitHub CLI | ❌ | ✅ |
-| 前端脚手架 | ❌ | ✅（pnpm / tsx / vite） |
+| 前端脚手架 | ❌ | ✅（pnpm / yarn / tsx / vite） |
 
 公共工具由 `agents-base` 统一维护，本模板 Dockerfile 只包含 Codex CLI 的增量安装。

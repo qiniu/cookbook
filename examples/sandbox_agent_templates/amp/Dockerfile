@@ -14,8 +14,8 @@ RUN npm install -g @sourcegraph/amp@latest \
 # 默认工作目录：继承 agents-base / e2bdev/base 约定
 WORKDIR /home/user
 
-# 构建期简单验证（失败不阻断构建，仅做冒烟检查）
-RUN amp --version || true \
-    && gh --version || true \
+# 构建期验证：核心工具缺失时直接失败，避免发布不可用模板。
+RUN amp --version \
+    && gh --version \
     && node --version \
     && python3 --version

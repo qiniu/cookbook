@@ -60,6 +60,7 @@ RUN apt-get update \
 # 说明：统一使用 @latest，保证每次 rebuild 拿到最新能力
 RUN npm install -g \
         pnpm@latest \
+        yarn@latest \
         tsx@latest \
         vite@latest \
     && npm cache clean --force
@@ -67,13 +68,14 @@ RUN npm install -g \
 # 默认工作目录：与 E2B 基础镜像保持一致
 WORKDIR /home/user
 
-# 构建期简单验证（失败不阻断构建，仅做冒烟检查）
+# 构建期验证：核心工具缺失时直接失败，避免发布不可用模板。
 RUN git --version \
     && rg --version \
     && vim --version | head -n 1 \
     && jq --version \
-    && gh --version || true \
+    && gh --version \
     && pnpm --version \
+    && yarn --version \
     && tsx --version \
     && vite --version \
     && node --version \
