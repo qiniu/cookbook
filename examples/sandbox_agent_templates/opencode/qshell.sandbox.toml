@@ -25,5 +25,5 @@
 name          = "opencode"
 dockerfile    = "Dockerfile"
 from_template = "agents-base"
-cpu_count     = 2
-memory_mb     = 2048
+cpu_count     = 4
+memory_mb     = 8192

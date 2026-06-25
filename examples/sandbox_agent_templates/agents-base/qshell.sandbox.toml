@@ -14,5 +14,5 @@
 name          = "agents-base"
 dockerfile    = "Dockerfile"
 from_template = "base"
-cpu_count     = 2
-memory_mb     = 2048
+cpu_count     = 4
+memory_mb     = 8192

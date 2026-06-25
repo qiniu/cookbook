@@ -43,7 +43,7 @@ CLI flag 优先于配置文件，可临时覆盖：
 
 ```bash
 # 临时调大内存，不改 qshell.sandbox.toml
-qshell sandbox template build --memory 4096 --wait
+qshell sandbox template build --memory 16384 --wait
 ```
 
 ## 发布 / 查看 / 删除

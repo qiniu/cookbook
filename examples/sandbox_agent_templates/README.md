@@ -48,7 +48,6 @@ make publish
 
 ```bash
 cd ../sandbox_agent
-export QINIU_SANDBOX_TEMPLATE_ID=claude
 go run .
 ```
 
