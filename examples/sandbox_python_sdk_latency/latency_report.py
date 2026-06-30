@@ -64,7 +64,7 @@ class RegionResult:
 
 def run_region(args: argparse.Namespace, region: str) -> RegionResult:
     endpoint = REGION_ENDPOINTS[region]
-    api_key = args.api_key or os.getenv("QINIU_API_KEY")
+    api_key = args.api_key
     steps: list[Step] = []
     sandbox = None
     sandbox_id = ""
@@ -143,7 +143,11 @@ def parse_args() -> argparse.Namespace:
             + "; supported regions: "
             + ", ".join(REGION_ENDPOINTS)
         )
-    args.api_key = args.api_key.strip()
+    args.api_key = args.api_key.strip() or os.getenv("QINIU_API_KEY", "").strip()
+    if not args.api_key:
+        parser.error(
+            "API key is required. Please provide --api-key or set the QINIU_API_KEY environment variable."
+        )
     args.template = args.template.strip() or DEFAULT_TEMPLATE
     if args.timeout <= 0:
         parser.error("--timeout must be positive")
