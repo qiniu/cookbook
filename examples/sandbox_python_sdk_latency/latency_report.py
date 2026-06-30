@@ -120,7 +120,11 @@ def run_region(args: argparse.Namespace, region: str) -> RegionResult:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run a simple Qiniu Python SDK sandbox example.")
-    parser.add_argument("--api-key", default="", help="sandbox API key; defaults to QINIU_API_KEY env")
+    parser.add_argument(
+        "--api-key-file",
+        default="",
+        help="file containing the sandbox API key; defaults to QINIU_API_KEY env",
+    )
     parser.add_argument(
         "--region",
         action="append",
@@ -143,15 +147,23 @@ def parse_args() -> argparse.Namespace:
             + "; supported regions: "
             + ", ".join(REGION_ENDPOINTS)
         )
-    args.api_key = args.api_key.strip() or os.getenv("QINIU_API_KEY", "").strip()
+    args.api_key_file = args.api_key_file.strip()
+    args.api_key = read_api_key_file(args.api_key_file) or os.getenv("QINIU_API_KEY", "").strip()
     if not args.api_key:
         parser.error(
-            "API key is required. Please provide --api-key or set the QINIU_API_KEY environment variable."
+            "API key is required. Please provide --api-key-file or set the QINIU_API_KEY environment variable."
         )
     args.template = args.template.strip() or DEFAULT_TEMPLATE
     if args.timeout <= 0:
         parser.error("--timeout must be positive")
     return args
+
+
+def read_api_key_file(path: str) -> str:
+    if not path:
+        return ""
+    with open(path, "r", encoding="utf-8") as file:
+        return file.read().strip()
 
 
 def run_step(

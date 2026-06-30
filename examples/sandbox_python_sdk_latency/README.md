@@ -49,14 +49,22 @@ Python SDK 需要客户端侧认证信息：
 在 shell 中可以这样指定：
 
 ```bash
-export QINIU_API_KEY="sk-..."
+read -rsp "QINIU_API_KEY: " QINIU_API_KEY
+echo
+export QINIU_API_KEY
 python3 examples/sandbox_python_sdk_latency/latency_report.py
 ```
 
-也可以直接通过脚本参数指定：
+也可以把 API Key 放在本地文件中，再通过参数指定文件路径，避免密钥进入 shell history 或进程列表：
 
 ```bash
-python3 examples/sandbox_python_sdk_latency/latency_report.py --api-key "sk-..."
+umask 077
+read -rsp "QINIU_API_KEY: " QINIU_SANDBOX_API_KEY
+echo
+printf '%s\n' "$QINIU_SANDBOX_API_KEY" > /tmp/qiniu-sandbox-api-key
+unset QINIU_SANDBOX_API_KEY
+chmod 600 /tmp/qiniu-sandbox-api-key
+python3 examples/sandbox_python_sdk_latency/latency_report.py --api-key-file /tmp/qiniu-sandbox-api-key
 ```
 
 脚本已经内置当前两个区域对应的 API 地址：

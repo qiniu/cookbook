@@ -28,3 +28,12 @@ def test_parse_args_uses_api_key_env(monkeypatch):
     with patch("sys.argv", ["latency_report.py"]):
         args = latency_report.parse_args()
     assert args.api_key == "sk-test"
+
+
+def test_parse_args_uses_api_key_file(monkeypatch, tmp_path):
+    monkeypatch.delenv("QINIU_API_KEY", raising=False)
+    key_file = tmp_path / "api-key"
+    key_file.write_text("sk-file\n", encoding="utf-8")
+    with patch("sys.argv", ["latency_report.py", "--api-key-file", str(key_file)]):
+        args = latency_report.parse_args()
+    assert args.api_key == "sk-file"
