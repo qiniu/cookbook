@@ -1,0 +1,1 @@
+qiniu @ https://github.com/qiniu/python-sdk/archive/refs/tags/v7.18.0.zip
