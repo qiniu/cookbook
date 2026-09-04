@@ -4,7 +4,7 @@ QSHELL ?= qshell
 # agents-base 必须先构建，因为所有 agent 模板都会通过各自的
 # qshell.sandbox.toml 中的 from_template = "agents-base" 继承它。
 BASE_TEMPLATE := agents-base
-AGENT_TEMPLATES := claude codex amp opencode
+AGENT_TEMPLATES := claude codex amp opencode deepseek-harness
 TEMPLATES := $(BASE_TEMPLATE) $(AGENT_TEMPLATES)
 
 .PHONY: all build publish $(addprefix build-,$(TEMPLATES)) $(addprefix publish-,$(TEMPLATES))

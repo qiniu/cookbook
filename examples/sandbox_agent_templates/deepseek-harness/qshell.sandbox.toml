@@ -1,0 +1,10 @@
+# DeepSeek Harness Web UI sandbox template
+# Build agents-base before this derived template.
+
+name          = "deepseek-harness"
+dockerfile    = "Dockerfile"
+from_template = "agents-base"
+cpu_count     = 4
+memory_mb     = 8192
+start_cmd     = "/opt/deepseek-harness/start.sh"
+ready_cmd     = "curl -fsS http://127.0.0.1:8080/_health"
