@@ -7,10 +7,11 @@
 - `codex`：基于 `agents-base` 叠加 OpenAI Codex CLI。
 - `amp`：基于 `agents-base` 叠加 Sourcegraph Amp CLI。
 - `opencode`：基于 `agents-base` 叠加 opencode CLI。
+- `deepseek-harness`：基于 `agents-base` 叠加 DeepSeek Harness Web UI 和登录网关。
 
 ## 敏感信息说明
 
-模板镜像不内置任何 API key、token 或账号级凭证。各 Agent CLI 需要的认证信息均通过创建沙箱时的环境变量或七牛沙箱 injection-rule 注入。
+模板镜像不内置任何 API key、token、Web UI 密码或账号级凭证。各 Agent CLI 需要的认证信息均通过创建沙箱时的环境变量或七牛沙箱 injection-rule 注入；`deepseek-harness` 的 Web UI 还需要通过 `DSH_WEB_PASSWORD` 设置登录密码。
 
 文档中的 `sk-...`、`sk-ant-...`、`placeholder` 和 `https://api.qnaigc.com` 都是占位示例，请替换为自己的配置。
 
